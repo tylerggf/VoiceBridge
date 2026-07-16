@@ -1,0 +1,80 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VoiceBridge Static Demo</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <section class="hero">
+        <div class="meta">VoiceBridge</div>
+        <h1>Free AI voice translator for natural conversations.</h1>
+        <p>Run this demo with Live Server or any static file server. Record speech, translate it with LibreTranslate, then play it back with browser TTS.</p>
+        <a class="button" href="#demo">Open translator</a>
+      </section>
+
+      <section id="demo" class="card translator">
+        <div class="panel">
+          <div class="panel-label">Speech Translator</div>
+          <div class="field-row">
+            <label for="input-language">Input language</label>
+            <select id="input-language"></select>
+          </div>
+          <div class="field-row">
+            <label for="output-language">Output language</label>
+            <select id="output-language"></select>
+          </div>
+          <div class="control-row">
+            <button class="control-button" id="record-button">Start recording</button>
+            <button class="control-button" id="reset-button">Reset</button>
+            <div class="status-chip" id="record-status">Idle</div>
+          </div>
+          <div class="field-row" style="margin-top: 18px;">
+            <label for="transcript">Live transcript</label>
+            <textarea id="transcript" readonly placeholder="Transcript will appear here."></textarea>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-label">Translation output</div>
+          <div class="field-row">
+            <label for="translation">Translated text</label>
+            <textarea id="translation" readonly placeholder="Translated text will appear here."></textarea>
+          </div>
+          <div class="field-row">
+            <label for="voice-selection">TTS voice</label>
+            <select id="voice-selection"></select>
+          </div>
+          <div class="control-row" style="margin-top: 18px;">
+            <button class="control-button" id="play-button">Play translation</button>
+            <div class="status-chip" id="translate-status">Waiting</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="panel-label">How it works</div>
+        <div class="grid-3">
+          <div class="feature">
+            <h3>Step 1</h3>
+            <p>Select input/output languages and press record.</p>
+          </div>
+          <div class="feature">
+            <h3>Step 2</h3>
+            <p>Your speech will be transcribed live in the browser.</p>
+          </div>
+          <div class="feature">
+            <h3>Step 3</h3>
+            <p>Play the translated text using browser TTS.</p>
+          </div>
+        </div>
+      </section>
+
+      <footer>Run this file with Live Server or any static server to use the demo.</footer>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>

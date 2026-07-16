@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: voicebridge-server
+    env: node
+    region: oregon
+    plan: starter
+    buildCommand: cd server && npm install && npm run build
+    startCommand: cd server && npm start
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        scope: env
+  - type: web
+    name: voicebridge-client
+    env: node
+    region: oregon
+    plan: starter
+    buildCommand: cd client && npm install && npm run build
+    startCommand: cd client && npm start -p $PORT
+    healthCheckPath: /
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        scope: env
