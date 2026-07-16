@@ -358,9 +358,10 @@ function createRecognizer({ lang, onFinal, onInterim, onEnd, onError }) {
         "en-US";
 
 
-      // Chrome + Safari settings
-      recognition.continuous = false;
-      recognition.interimResults = true;
+     // Improved Chrome / Edge / Safari settings
+recognition.continuous = true;
+recognition.interimResults = true;
+recognition.maxAlternatives = 5;
 
 
       recognition.onstart = () => {
