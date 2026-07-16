@@ -303,170 +303,112 @@
   // ---------------------------------------------------------
 function createRecognizer({ lang, onFinal, onInterim, onEnd, onError }) {
 
+  // Browser compatibility:
+  // Chrome / Edge = SpeechRecognition
+  // Safari = webkitSpeechRecognition
   const SpeechRecognition =
     window.SpeechRecognition ||
-    window.webkitSpeechRecognition;
+    window.webkitSpeechRecognition ||
+    window.mozSpeechRecognition ||
+    window.msSpeechRecognition;
 
   if (!SpeechRecognition) {
-    onError("Speech recognition is not supported.");
+
+    let browser = "this browser";
+
+    if (/Safari/i.test(navigator.userAgent) && !/Chrome/i.test(navigator.userAgent)) {
+      browser = "Safari";
+    } 
+    else if (/Chrome/i.test(navigator.userAgent)) {
+      browser = "Chrome";
+    }
+    else if (/Edg/i.test(navigator.userAgent)) {
+      browser = "Edge";
+    }
+
+    onError(
+      `Speech recognition is not supported in ${browser}. Try Chrome, Edge, or Safari with microphone permission enabled.`
+    );
+
     return {
-      supported:false,
-      start(){},
-      stop(){}
+      supported: false,
+      start() {},
+      stop() {}
     };
   }
 
 
-  let recognition;
-  let silenceTimer;
+  let recognition = null;
 
 
   return {
 
-    supported:true,
+    supported: true,
 
 
-    start(){
+    start() {
 
       recognition = new SpeechRecognition();
 
+
+      // Language support
       recognition.lang =
-        SPEECH_LOCALE[lang] || "en-US";
+        SPEECH_LOCALE[lang] ||
+        navigator.language ||
+        "en-US";
 
 
-      // Listen continuously
-      recognition.continuous = true;
-
-      // Show live words
-      recognition.interimResults = true;
-
-      // Better accuracy
-      recognition.maxAlternatives = 5;
+     // Improved Chrome / Edge / Safari settings
+recognition.continuous = true;
+recognition.interimResults = true;
+recognition.maxAlternatives = 5;
 
 
-
-      function resetSilenceTimer(){
-
-        clearTimeout(silenceTimer);
-
-
-        // Stop after 2 seconds of silence
-        silenceTimer = setTimeout(()=>{
-
-          console.log(
-            "[VoiceBridge] Silence detected - stopping"
-          );
-
-          recognition.stop();
-
-        },2000);
-
-      }
-
-
-
-      recognition.onstart = ()=>{
-
+      recognition.onstart = () => {
         console.log(
-          "[VoiceBridge] Listening..."
+          "[VoiceBridge] Speech recognition started",
+          recognition.lang
         );
-
       };
 
 
+      recognition.onresult = (event) => {
 
-      recognition.onresult = (event)=>{
-
-        let finalText="";
-        let interimText="";
+        let interim = "";
 
 
-        for(
-          let i=event.resultIndex;
-          i<event.results.length;
+        for (
+          let i = event.resultIndex;
+          i < event.results.length;
           i++
-        ){
+        ) {
 
-          const text =
-          event.results[i][0].transcript;
+          const transcript =
+            event.results[i][0].transcript;
 
 
-          if(event.results[i].isFinal){
+          if (event.results[i].isFinal) {
 
-            finalText += text + " ";
+            onFinal(
+              transcript.trim()
+            );
+
+          } 
+          else {
+
+            interim += transcript;
 
           }
-          else{
-
-            interimText += text;
-
-          }
 
         }
 
 
-        if(interimText){
-
-          onInterim(
-            interimText.trim()
-          );
-
-          resetSilenceTimer();
-
-        }
-
-
-        if(finalText.trim()){
-
-          clearTimeout(silenceTimer);
-
-          onFinal(
-            finalText.trim()
-          );
-
+        if (interim) {
+          onInterim(interim);
         }
 
       };
 
-
-
-      recognition.onerror=(event)=>{
-
-        clearTimeout(silenceTimer);
-
-        onError(
-          "Speech error: " + event.error
-        );
-
-      };
-
-
-
-      recognition.onend=()=>{
-
-        clearTimeout(silenceTimer);
-
-        onEnd();
-
-      };
-
-
-      recognition.start();
-
-    },
-
-
-
-    stop(){
-
-      clearTimeout(silenceTimer);
-
-      recognition?.stop();
-
-    }
-
-  };
-}
 
       recognition.onerror = (event) => {
 
