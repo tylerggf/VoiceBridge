@@ -1,80 +1,184 @@
-﻿<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>VoiceBridge - AI Voice Translator</title>
-    <link rel="stylesheet" href="styles.css" />
-  </head>
-  <body>
-    <div class="page">
-      <section class="hero">
-        <div class="meta">VoiceBridge</div>
-        <h1>Free AI voice translator for natural conversations.</h1>
-       <p>Speak naturally, translate instantly, and hear your conversation in another language using AI-powered speech recognition and voice playback.</p>
-        <a class="button" href="#demo">Open translator</a>
-      </section>
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VoiceBridge — Speak Any Language, Instantly</title>
+<meta name="description" content="A free, browser-based AI voice translator. Speak naturally, hear the translation back, in real time.">
 
-      <section id="demo" class="card translator">
-        <div class="panel">
-          <div class="panel-label">Speech Translator</div>
-          <div class="field-row">
-            <label for="input-language">Input language</label>
-            <select id="input-language"></select>
-          </div>
-          <div class="field-row">
-            <label for="output-language">Output language</label>
-            <select id="output-language"></select>
-          </div>
-          <div class="control-row">
-            <button class="control-button" id="record-button">Start recording</button>
-            <button class="control-button" id="reset-button">Reset</button>
-            <div class="status-chip" id="record-status">Idle</div>
-          </div>
-          <div class="field-row" style="margin-top: 18px;">
-            <label for="transcript">Live transcript</label>
-            <textarea id="transcript" readonly placeholder="Transcript will appear here."></textarea>
-          </div>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="bg-gradient"></div>
+<div class="bg-glow"></div>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark">VB</span>
+    <div style="display:flex;align-items:baseline;gap:8px;">
+      <span class="brand-name">VoiceBridge</span>
+      <span class="brand-credit">made by Tyler J Robinson</span>
+    </div>
+  </div>
+  <nav class="topnav">
+    <button id="navHome" class="nav-link active" data-view="home">Home</button>
+    <button id="navTranslate" class="nav-link" data-view="translate">Translate</button>
+    <button id="navConversation" class="nav-link" data-view="conversation">Conversation</button>
+    <button id="navHistory" class="nav-link" data-view="history">History</button>
+    <button id="themeToggle" class="icon-btn" title="Toggle light/dark">🌙</button>
+  </nav>
+</header>
+
+<main>
+
+  <!-- ============ HOME ============ -->
+  <section id="view-home" class="view active">
+    <div class="hero">
+      <div class="hero-copy">
+        <h1>Two voices.<br>One <span class="grad-text">bridge</span>.</h1>
+        <p>Speak naturally in your own language — VoiceBridge listens, translates, and speaks back in theirs. Free, instant, and running right in your browser.</p>
+        <div class="hero-actions">
+          <button class="btn btn-primary" data-goto="translate">Start Translating</button>
+          <button class="btn btn-ghost" data-goto="conversation">Try Conversation Mode</button>
         </div>
-
-        <div class="panel">
-          <div class="panel-label">Translation output</div>
-          <div class="field-row">
-            <label for="translation">Translated text</label>
-            <textarea id="translation" readonly placeholder="Translated text will appear here."></textarea>
-          </div>
-          <div class="field-row">
-            <label for="voice-selection">TTS voice</label>
-            <select id="voice-selection"></select>
-          </div>
-          <div class="control-row" style="margin-top: 18px;">
-            <button class="control-button" id="play-button">Play translation</button>
-            <div class="status-chip" id="translate-status">Waiting</div>
-          </div>
-        </div>
-      </section>
-
-      <section class="card">
-        <div class="panel-label">How it works</div>
-        <div class="grid-3">
-          <div class="feature">
-            <h3>Step 1</h3>
-            <p>Select input/output languages and press record.</p>
-          </div>
-          <div class="feature">
-            <h3>Step 2</h3>
-            <p>Your speech will be transcribed live in the browser.</p>
-          </div>
-          <div class="feature">
-            <h3>Step 3</h3>
-            <p>Play the translated text using browser TTS.</p>
-          </div>
-        </div>
-      </section>
-
-      <footer>Run this file with Live Server or any static server to use the demo.</footer>
+      </div>
+      <div class="hero-visual">
+        <canvas id="waveCanvas" width="480" height="280"></canvas>
+      </div>
     </div>
 
-    <script src="script.js"></script>
-  </body>
+    <div class="features">
+      <div class="feature-card">
+        <div class="feature-icon" style="color:var(--coral)">🎙️</div>
+        <h3>Speak Naturally</h3>
+        <p>No typing. Just talk — your words are captured live as you speak.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="color:var(--signal)">🌐</div>
+        <h3>20 Languages</h3>
+        <p>From Spanish to Japanese, Arabic to Vietnamese — real translation, not guesswork.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="color:var(--coral-soft)">🔊</div>
+        <h3>Hear It Back</h3>
+        <p>Every translation is spoken aloud, so conversations flow instead of stalling on a screen.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="color:var(--signal-soft)">💬</div>
+        <h3>Conversation Mode</h3>
+        <p>Two people, two languages, one flowing back-and-forth exchange.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SINGLE TRANSLATOR ============ -->
+  <section id="view-translate" class="view">
+    <div class="panel translator-panel">
+      <div class="lang-row">
+        <select id="srcLang" class="lang-select"></select>
+        <button id="swapLangs" class="icon-btn" title="Swap languages">⇄</button>
+        <select id="tgtLang" class="lang-select"></select>
+      </div>
+
+      <div class="mic-stage">
+        <button id="micBtn" class="mic-btn">
+          <span id="micIcon">🎙️</span>
+          <span class="mic-ring"></span>
+        </button>
+        <p id="micStatus" class="mic-status">Tap to speak</p>
+      </div>
+
+      <div class="transcript-pair">
+        <div class="transcript-card original">
+          <span class="transcript-label">You said</span>
+          <p id="originalText" class="transcript-text placeholder">Your speech will appear here…</p>
+        </div>
+        <div class="transcript-card translated">
+          <span class="transcript-label">Translation</span>
+          <p id="translatedText" class="transcript-text placeholder">Translation will appear here…</p>
+          <button id="replayBtn" class="icon-btn replay-btn" title="Replay" disabled>🔊</button>
+        </div>
+      </div>
+    </div>
+
+    <details class="voice-controls">
+      <summary>Voice controls</summary>
+      <div class="voice-controls-grid">
+        <label>Voice
+          <select id="voiceSelect"></select>
+        </label>
+        <label>Rate <span id="rateVal">1.0</span>
+          <input type="range" id="rateSlider" min="0.5" max="2" step="0.1" value="1">
+        </label>
+        <label>Pitch <span id="pitchVal">1.0</span>
+          <input type="range" id="pitchSlider" min="0" max="2" step="0.1" value="1">
+        </label>
+        <label>Volume <span id="volumeVal">1.0</span>
+          <input type="range" id="volumeSlider" min="0" max="1" step="0.1" value="1">
+        </label>
+      </div>
+    </details>
+
+    <div class="mode-toggle">
+      <button class="link-btn" data-goto="conversation">Switch to Conversation Mode →</button>
+    </div>
+  </section>
+
+  <!-- ============ CONVERSATION MODE ============ -->
+  <section id="view-conversation" class="view">
+    <div class="convo-grid">
+      <div class="convo-card speaker-a">
+        <div class="convo-head">
+          <span class="speaker-dot dot-a"></span>
+          <span>Speaker A</span>
+          <select id="convoLangA" class="lang-select small"></select>
+        </div>
+        <button class="mic-btn small" id="convoMicA"><span>🎙️</span><span class="mic-ring"></span></button>
+        <p class="convo-status" id="convoStatusA">Tap to speak</p>
+        <p class="transcript-text" id="convoTextA"></p>
+      </div>
+      <div class="convo-arrow">⇄</div>
+      <div class="convo-card speaker-b">
+        <div class="convo-head">
+          <span class="speaker-dot dot-b"></span>
+          <span>Speaker B</span>
+          <select id="convoLangB" class="lang-select small"></select>
+        </div>
+        <button class="mic-btn small" id="convoMicB"><span>🎙️</span><span class="mic-ring"></span></button>
+        <p class="convo-status" id="convoStatusB">Tap to speak</p>
+        <p class="transcript-text" id="convoTextB"></p>
+      </div>
+    </div>
+
+    <div class="convo-feed" id="convoFeed"></div>
+
+    <div class="mode-toggle">
+      <button class="link-btn" data-goto="translate">← Back to Single Translator</button>
+    </div>
+  </section>
+
+  <!-- ============ HISTORY ============ -->
+  <section id="view-history" class="view">
+    <div class="history-toolbar">
+      <input type="text" id="historySearch" placeholder="Search history…">
+      <button id="downloadHistory" class="btn btn-ghost small">Download JSON</button>
+      <button id="clearHistory" class="btn btn-ghost small danger">Clear All</button>
+    </div>
+    <div id="historyList" class="history-list"></div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <p>VoiceBridge — free &amp; open, running entirely in your browser. Speech via the Web Speech API, translation via LibreTranslate.</p>
+</footer>
+
+<div id="toast" class="toast"></div>
+
+<script src="app.js"></script>
+</body>
 </html>
