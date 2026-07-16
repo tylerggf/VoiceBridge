@@ -301,52 +301,198 @@
   // ---------------------------------------------------------
   // Speech recognition wrapper (mirrors useSpeechRecognition.ts)
   // ---------------------------------------------------------
-  function createRecognizer({ lang, onFinal, onInterim, onEnd, onError }) {
-    const Ctor = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!Ctor) {
-      onError("Speech recognition isn't supported in this browser. Try Chrome or Edge.");
-      return { supported: false, start() {}, stop() {} };
+function createRecognizer({ lang, onFinal, onInterim, onEnd, onError }) {
+
+  // Browser compatibility:
+  // Chrome / Edge = SpeechRecognition
+  // Safari = webkitSpeechRecognition
+  const SpeechRecognition =
+    window.SpeechRecognition ||
+    window.webkitSpeechRecognition ||
+    window.mozSpeechRecognition ||
+    window.msSpeechRecognition;
+
+  if (!SpeechRecognition) {
+
+    let browser = "this browser";
+
+    if (/Safari/i.test(navigator.userAgent) && !/Chrome/i.test(navigator.userAgent)) {
+      browser = "Safari";
+    } 
+    else if (/Chrome/i.test(navigator.userAgent)) {
+      browser = "Chrome";
+    }
+    else if (/Edg/i.test(navigator.userAgent)) {
+      browser = "Edge";
     }
 
-    let recognition = null;
+    onError(
+      `Speech recognition is not supported in ${browser}. Try Chrome, Edge, or Safari with microphone permission enabled.`
+    );
 
     return {
-      supported: true,
-      start() {
-        recognition = new Ctor();
-        recognition.lang = SPEECH_LOCALE[lang] || "en-US";
-        recognition.continuous = false;
-        recognition.interimResults = true;
-
-        recognition.onresult = (event) => {
-          let interim = "";
-          for (let i = event.resultIndex; i < event.results.length; i++) {
-            const transcript = event.results[i][0].transcript;
-            if (event.results[i].isFinal) {
-              onFinal(transcript.trim());
-              interim = "";
-            } else {
-              interim += transcript;
-            }
-          }
-          onInterim(interim);
-        };
-
-        recognition.onerror = (event) => {
-          onError(event.error === "not-allowed"
-            ? "Microphone access was denied."
-            : `Recognition error: ${event.error}`);
-        };
-
-        recognition.onend = () => onEnd();
-
-        recognition.start();
-      },
-      stop() {
-        recognition?.stop();
-      },
+      supported: false,
+      start() {},
+      stop() {}
     };
   }
+
+
+  let recognition = null;
+
+
+  return {
+
+    supported: true,
+
+
+    start() {
+
+      recognition = new SpeechRecognition();
+
+
+      // Language support
+      recognition.lang =
+        SPEECH_LOCALE[lang] ||
+        navigator.language ||
+        "en-US";
+
+
+      // Chrome + Safari settings
+      recognition.continuous = false;
+      recognition.interimResults = true;
+
+
+      recognition.onstart = () => {
+        console.log(
+          "[VoiceBridge] Speech recognition started",
+          recognition.lang
+        );
+      };
+
+
+      recognition.onresult = (event) => {
+
+        let interim = "";
+
+
+        for (
+          let i = event.resultIndex;
+          i < event.results.length;
+          i++
+        ) {
+
+          const transcript =
+            event.results[i][0].transcript;
+
+
+          if (event.results[i].isFinal) {
+
+            onFinal(
+              transcript.trim()
+            );
+
+          } 
+          else {
+
+            interim += transcript;
+
+          }
+
+        }
+
+
+        if (interim) {
+          onInterim(interim);
+        }
+
+      };
+
+
+      recognition.onerror = (event) => {
+
+        console.error(
+          "[VoiceBridge Speech Error]",
+          event.error
+        );
+
+
+        switch(event.error){
+
+          case "not-allowed":
+            onError(
+              "Microphone permission denied. Allow microphone access in browser settings."
+            );
+            break;
+
+
+          case "network":
+            onError(
+              "Speech service connection failed. Check your internet connection."
+            );
+            break;
+
+
+          case "no-speech":
+            onError(
+              "No speech detected. Try speaking closer to your microphone."
+            );
+            break;
+
+
+          default:
+            onError(
+              `Speech recognition error: ${event.error}`
+            );
+
+        }
+
+      };
+
+
+      recognition.onend = () => {
+
+        console.log(
+          "[VoiceBridge] Speech recognition ended"
+        );
+
+        onEnd();
+
+      };
+
+
+      try {
+
+        recognition.start();
+
+      }
+
+      catch(error){
+
+        console.error(error);
+
+        onError(
+          "Unable to start microphone."
+        );
+
+      }
+
+    },
+
+
+    stop(){
+
+      if(recognition){
+
+        recognition.stop();
+
+      }
+
+    }
+
+  };
+
+}
 
   // ---------------------------------------------------------
   // Speech synthesis wrapper (mirrors useSpeechSynthesis.ts)
